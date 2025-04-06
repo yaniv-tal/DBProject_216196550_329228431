@@ -23,3 +23,4 @@ https://github.com/yaniv-tal/DBProject_216196550_329228431
 
 3.	ניהול משימות – עבור כל משימה המערכת תשמור את זמני המשימה  והיחידות המשתתפות 
 
+![image](https://github.com/user-attachments/assets/7f23ab7b-f08f-4050-87e7-05ca2a4b6569)
