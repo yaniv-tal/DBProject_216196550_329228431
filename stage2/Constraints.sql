@@ -1,0 +1,14 @@
+ALTER TABLE SOLDIERS
+ADD CONSTRAINT chk_draft_before_release
+CHECK (draftDate < releaseDate);
+
+
+
+ALTER TABLE UNIT
+ADD CONSTRAINT unique_unit_name
+UNIQUE (uName);
+
+
+
+ALTER TABLE CREWMATE
+ALTER COLUMN type SET NOT NULL;
