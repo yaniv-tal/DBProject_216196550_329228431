@@ -124,13 +124,108 @@
 ---
 
 ### רשימת הסכמות של בסיס הנתונים
+#### הסכמות של הישויות
+- SOLIDERS(sID,firstName,lastName,draftDate,releaseDate)
+- COMMANDER(cID)
+- CREWMATE(crID,cID,type)
+- TANK(tID,unID,cID)
+- UNIT(unID,cID,uName)
+- MISSION(mID,mdate)
+#### הסכמות של הקשרים
+- participates(mID,unID)
 
-#### ישויות
+### הוכחה שהסכמות מנורמלות בNF3
+## הוכחה שהסכמות מנורמלות ב-NF3
+
+**SOLDIERS (חיילים)** – המפתח הראשי הוא `sID`. כל שאר התכונות תלויות ישירות במפתח הראשי `sID`. ולכן הטבלה ב-NF3.
+
+**COMMANDER (מפקד)** – `cID` הוא מפתח ראשי וגם מפתח זר המפנה ל-`sID` בטבלה `SOLDIERS`. אין מאפיינים נוספים ולכן הטבלה ב-NF3.
+
+**CREWMATE (איש צוות)** – `type` תלוי ב-`cID` וגם `crID` תלוי ישירות ב-`crID` כמפתח זר. הטבלה ב-NF3.
+
+**UNIT (יחידה)** – `uName` ו-`cID` תלויים במפתח הראשי `unID`. הטבלה נמצאת ב-NF3.
+
+**TANK (טנק)** – `unID` ו-`cID` הן תכונות עם יחסים של מפתחות זרים. אך אין תלות טרנזיטיבית כיוון ש-`tID` הוא המפתח הראשי. ולכן הטבלה ב-NF3.
+
+**MISSION (משימה)** – מכיוון ש-`mdate` תלוי ישירות במפתח הראשי `mID`, הטבלה ב-NF3.
+
+**PARTICIPATES (משתתף)** – גם `mID` וגם `unID` הם מפתחות זרים, והם יוצרים יחד מפתח מורכב. כל מאפיין במפתח המורכב קובע לחלוטין את המאפיינים האחרים.
+
+למסקנה כל הטבלאות עונות על התנאים ל-3NF.
+
+
+#### קוד SQL של יצירת הטבלאות (CREATE)
 
 ```sql
-SOLDIERS(sID, firstName, lastName, draftDate, releaseDate)
-COMMANDER(cID)
-CREWMATE(crID, cID, type)
-TANK(tID, unID, cID)
-UNIT(unID, cID, uName)
-MISSION(mID, mDate)
+CREATE TABLE SOLDIERS
+(
+  sID numeric(9) NOT NULL,
+  firstName VARCHAR(20) NOT NULL,
+  lastName VARCHAR(20) NOT NULL,
+  draftDate DATE NOT NULL,
+  releaseDate DATE NOT NULL,
+  PRIMARY KEY (sID)
+);
+
+CREATE TABLE MISSION
+(
+  mdate DATE NOT NULL,
+  mID numeric(9) NOT NULL,
+  PRIMARY KEY (mID)
+);
+
+CREATE TABLE COMMANDER
+(
+  cID numeric(9) NOT NULL,
+  PRIMARY KEY (cID),
+  FOREIGN KEY (cID) REFERENCES SOLDIERS(sID)
+);
+
+CREATE TABLE CREWMATE
+(
+  type VARCHAR(20) NOT NULL,
+  crID numeric(9) NOT NULL,
+  cID numeric(9) NOT NULL,
+  PRIMARY KEY (crID),
+  FOREIGN KEY (crID) REFERENCES SOLDIERS(sID),
+  FOREIGN KEY (cID) REFERENCES COMMANDER(cID)
+);
+
+CREATE TABLE UNIT
+(
+  unID numeric(9) NOT NULL,
+  uName VARCHAR(20) NOT NULL,
+  cID numeric(9) NOT NULL,
+  PRIMARY KEY (unID),
+  FOREIGN KEY (cID) REFERENCES COMMANDER(cID)
+);
+
+CREATE TABLE TANK
+(
+  tID numeric(9) NOT NULL,
+  unID numeric(9) NOT NULL,
+  cID numeric(9) NOT NULL,
+  PRIMARY KEY (tID),
+  FOREIGN KEY (unID) REFERENCES UNIT(unID),
+  FOREIGN KEY (cID) REFERENCES COMMANDER(cID)
+);
+
+CREATE TABLE participates
+(
+  mID numeric(9) NOT NULL,
+  unID numeric(9) NOT NULL,
+  PRIMARY KEY (mID, unID),
+  FOREIGN KEY (mID) REFERENCES MISSION(mID),
+  FOREIGN KEY (unID) REFERENCES UNIT(unID)
+);
+```
+#### קוד SQL של זריקת הטבלאות (DROP)	
+```sql
+DROP TABLE CREWMATE;
+DROP TABLE TANK;
+DROP TABLE participates;
+DROP TABLE MISSION;
+DROP TABLE UNIT;
+DROP TABLE COMMANDER;
+DROP TABLE SOLDIERS;
+```
